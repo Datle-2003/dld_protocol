@@ -2,5 +2,3 @@ __pycache__
 .venv
 .vscode
 .env
-data.txt
-*.csv
