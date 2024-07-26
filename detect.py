@@ -16,18 +16,31 @@ def detect_traffic(traffic_data, fuzzy_fingerprints, M):
                 break
     return T_hat
 
-sensitive_data = "My name  , i'm from Vietnam iufhewiuhriuewyrhiuwhkjsndkldsfk oidjfoewoi oweuroiwueroiw oiuroiwuoiruw oqwoiweuoirw odwjfoiewu8rtew798 ouewrweyriuwehfkjwf"  
+sensitive_data = ""  
+
+# read sensitive data from file: MOCK_DATA.csv
+with open("MOCK_DATAs.csv", "r") as file:
+    for line in file:
+        sensitive_data += line
+print(len(sensitive_data))
+
+
 fuzzy_fingerprints = preprocess_sensitive_data(sensitive_data)
 print(f"Fuzzy Fingerprints: {fuzzy_fingerprints}")
 
-traffic_data = "Kho;fkew oiwejoiew 09qq-q- 9e99e 999  qqq  -wq0e-wq ng co gi weriurhiue" 
+traffic_data = "" 
+with open("MOCK_DATAt.csv", "r") as file:
+    for line in file:
+        traffic_data += line
+
+print(len(traffic_data))
 
 T_hat = detect_traffic(traffic_data, fuzzy_fingerprints, M)
 
 print("T_hat:", T_hat)
 
 # Output
-threshold = 0.8
+threshold = 0.7
 if len(T_hat) / len(fuzzy_fingerprints) > threshold:
     print("Sensitive data detected!")
 else:
