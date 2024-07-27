@@ -1,4 +1,4 @@
-from lib.config import LENGTH_SHINGLE, LENGTH_FINGERPRINT, FUZZY_LENGTH, p_x, M
+from config import LENGTH_SHINGLE, LENGTH_FINGERPRINT, FUZZY_LENGTH, p_x, M
 from preprocess import rabin_fingerprint, preprocess_sensitive_data
 
 def fuzzy_equivalence(f, f_star, M):
@@ -18,7 +18,7 @@ def detect_traffic(traffic_data, fuzzy_fingerprints, M):
 
 # sensitive_data = ""  
 
-# # read sensitive data from file: MOCK_DATA.csv
+# read sensitive data from file: MOCK_DATA.csv
 # with open("MOCK_DATAs.csv", "r") as file:
 #     for line in file:
 #         sensitive_data += line

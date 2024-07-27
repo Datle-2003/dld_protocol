@@ -1,10 +1,9 @@
-from config import LENGTH_SHINGLE, LENGTH_FINGERPRINT, FUZZY_LENGTH, p_x, M
+from lib.config import LENGTH_SHINGLE, LENGTH_FINGERPRINT, FUZZY_LENGTH, p_x, M
 import random 
 
 
 def rabin_fingerprint(shingle, polynomial):
     finger_print = 0
-
     for byte in shingle.encode('utf-8'): # read byte by byte
         # shift the fingerprint to the left by 8 bits to make room for the next byte
         finger_print = (finger_print << 8) | byte # append the byte to the fingerprint
@@ -17,9 +16,7 @@ def rabin_fingerprint(shingle, polynomial):
         finger_print >>= 1
         
         return finger_print & ((1 << LENGTH_FINGERPRINT) - 1)
-
-
-
+    
 def generate_fuzzy_fingerprints(fingerprints):
     fuzzy_fingerprints = set()
     for f in fingerprints:

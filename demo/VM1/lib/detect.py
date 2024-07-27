@@ -16,32 +16,32 @@ def detect_traffic(traffic_data, fuzzy_fingerprints, M):
                 break
     return T_hat
 
-sensitive_data = ""  
+# sensitive_data = ""  
 
 # read sensitive data from file: MOCK_DATA.csv
-with open("MOCK_DATAs.csv", "r") as file:
-    for line in file:
-        sensitive_data += line
-print(len(sensitive_data))
+# with open("MOCK_DATAs.csv", "r") as file:
+#     for line in file:
+#         sensitive_data += line
+# print(len(sensitive_data))
 
 
-fuzzy_fingerprints = preprocess_sensitive_data(sensitive_data)
-print(f"Fuzzy Fingerprints: {fuzzy_fingerprints}")
+# fuzzy_fingerprints = preprocess_sensitive_data(sensitive_data)
+# print(f"Fuzzy Fingerprints: {fuzzy_fingerprints}")
 
-traffic_data = "" 
-with open("MOCK_DATAt.csv", "r") as file:
-    for line in file:
-        traffic_data += line
+# traffic_data = "" 
+# with open("MOCK_DATAt.csv", "r") as file:
+#     for line in file:
+#         traffic_data += line
 
-print(len(traffic_data))
+# print(len(traffic_data))
 
-T_hat = detect_traffic(traffic_data, fuzzy_fingerprints, M)
+# T_hat = detect_traffic(traffic_data, fuzzy_fingerprints, M)
 
-print("T_hat:", T_hat)
+# print("T_hat:", T_hat)
 
-# Output
-threshold = 0.7
-if len(T_hat) / len(fuzzy_fingerprints) > threshold:
-    print("Sensitive data detected!")
-else:
-    print("No sensitive data detected!")
+# # Output
+# threshold = 0.7
+# if len(T_hat) / len(fuzzy_fingerprints) > threshold:
+#     print("Sensitive data detected!")
+# else:
+#     print("No sensitive data detected!")

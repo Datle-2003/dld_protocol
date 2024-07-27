@@ -1,13 +1,12 @@
-from preprocess import preprocess_sensitive_data
+import lib.preprocess as preprocess
 import socket
-import ssl
-import config
+import lib.config as config
+
 def read_data(file_name):
     sensitive_data = ""
     with open(file_name, "r") as file:
         for line in file:
             sensitive_data += line
-    print(len(sensitive_data))
     return sensitive_data
 
 
@@ -15,7 +14,7 @@ def send_to_vm2(data, address):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         sock.connect(address)
-        sock.sendall(data.encode('utf-8'))
+        sock.sendall(data.encode('utf-8')) # convert string to bytes
         response = sock.recv(1024)
         print(f"Response from vm2: {response.decode('utf-8')}")
     except Exception as e:
@@ -23,20 +22,15 @@ def send_to_vm2(data, address):
     finally:
         sock.close()
 
-
-def main():
+if __name__ == "__main__":
     sensitive_data = read_data("sensitive_data.csv")
-    fuzzy_fingerprints = preprocess_sensitive_data(sensitive_data)
-    print(f"Fuzzy Fingerprints: {fuzzy_fingerprints}")
+    fuzzy_fingerprints = preprocess.preprocess_sensitive_data(sensitive_data)
 
-     # Convert fuzzy fingerprints to a format suitable for sending
-    fuzzy_fingerprints_str = "\n".join(fuzzy_fingerprints)
+    # Convert fuzzy fingerprints to a format suitable for sending
+    fuzzy_fingerprints_str = "\n".join(map(str, fuzzy_fingerprints)) # convert list to string
     message = f"type=fingerprint;data={fuzzy_fingerprints_str}"
 
+    # print(f"Sending message to VM2: {message}")
     vm2_address = config.vm2_address
-
     send_to_vm2(message, vm2_address)
-
-if __name__ == "__main__":
-    main()
 
