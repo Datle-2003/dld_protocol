@@ -48,8 +48,6 @@ def handle_connection(client_socket):
 
             forward_to_vm3(data, vm3_address)
 
-            # Check the data for sensitive information
-
             T_hat = detect.detect_traffic(data, fuzzy_fingerprints, config.M)
 
             response = ""
