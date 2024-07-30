@@ -2,18 +2,27 @@ import socket
 import threading
 import lib.config as config
 import lib.detect as detect
-import re
+from pybloom_live import BloomFilter
 
 fuzzy_fingerprints = []
+bf = BloomFilter(capacity=10000, error_rate=0.001)
 
-def handle_fingerprint_connection(conn):
-    global fuzzy_fingerprints
+def handle_fingerprint_connection(data, conn):
+    global fuzzy_fingerprints, bf
     try:
-        data = conn.recv(1024).decode('utf-8')
-        fingerprints = data.split("\n")
-        fuzzy_fingerprints.extend(fingerprints)
-        conn.sendall(b"Fingerprints received")
-        print(f"Fingerprints received: {fuzzy_fingerprints}")
+        # Extract the part after 'data='
+        if 'data=' in data:
+            data_part = data.split('data=')[1]
+            fingerprints = data_part.split("\n")
+            # Convert each element to a number
+            fingerprints = [int(fp) for fp in fingerprints if fp.strip() != ""]
+            fuzzy_fingerprints.extend(fingerprints)
+            conn.sendall(b"Fingerprints received")
+            print(f"Fingerprints received: {fuzzy_fingerprints}")
+            for fingerprint in fuzzy_fingerprints:
+                bf.add(fingerprint)
+        else:
+            print("No data found in the message")
     except Exception as e:
         print(f"Error receiving fingerprints: {e}")
     finally:
@@ -32,10 +41,13 @@ def forward_to_vm3(data, address):
 
 def handle_connection(client_socket):
     try:
-        initial_data = client_socket.recv(1024).decode('utf-8')
+        initial_data = client_socket.recv(4096).decode('utf-8')
         if initial_data.startswith("type=fingerprint"):
-            handle_fingerprint_connection(client_socket)
+            print(len(initial_data))
+            print(initial_data)
+            handle_fingerprint_connection(initial_data, client_socket)
         else:
+
             parts = initial_data.split(";")
             address_part = parts[0].split("=")[1].strip()
             address_part = address_part[3:-1]
@@ -45,20 +57,14 @@ def handle_connection(client_socket):
             vm3_address = (vm3_host, vm3_port)
 
             data = parts[1].split("=")[1].strip()
-
-            forward_to_vm3(data, vm3_address)
-
-            T_hat = detect.detect_traffic(data, fuzzy_fingerprints, config.M)
-
-            response = ""
-            if len(fuzzy_fingerprints) == 0:
-                response = "No sensitive data detected!"
-            elif len(T_hat) / len(fuzzy_fingerprints) > config.threshold:
-                response = "Sensitive data detected!"
+            
+            is_sensitive = False if len(fuzzy_fingerprints) == 0 else detect.detect_traffic(data.encode('utf-8'), bf, len(fuzzy_fingerprints), threshold=0.6)
+            
+            if is_sensitive:
+                client_socket.sendall(data.encode('utf-8'))
             else:
-                response = "No sensitive data detected!"
-
-            client_socket.sendall(response.encode('utf-8'))
+                forward_to_vm3(data, vm3_address)
+                client_socket.sendall(b"Data sent to server")
 
     except Exception as e:
         print(f"Error handling connection: {e}")
