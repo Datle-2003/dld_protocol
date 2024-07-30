@@ -1,5 +1,5 @@
-from config import LENGTH_SHINGLE, FUZZY_LENGTH, p_x, RELEASE_RATIO
-from preprocess import preprocess_sensitive_data
+from .config import LENGTH_SHINGLE, FUZZY_LENGTH, p_x, RELEASE_RATIO
+from .preprocess import preprocess_sensitive_data
 from pybloom_live import BloomFilter
 import pyrabin_fingerprint
 
@@ -34,22 +34,21 @@ def detect_traffic(traffic_data, fuzzy_fingerprints, count_fingerprints, thresho
     if len(T_hat) / (min(count_fingerprints, len(traffic_data)) * RELEASE_RATIO) > threshold:
         print(len(T_hat) / (min(count_fingerprints, len(traffic_data)) * RELEASE_RATIO))
         print("Sensitive data detected!")
-        return True;
     else:
         print(len(T_hat) / (min(count_fingerprints, len(traffic_data)) * RELEASE_RATIO))
         print("No sensitive data detected!")
-        return False;
 
 
-sensitive_data = bytes()
+# sensitive_data = bytes()
 
-# read sensitive data from file: MOCK_DATA.csv
-with open("MOCK_DATA.csv", "rb") as file:
-    sensitive_data = file.read()
+# # read sensitive data from file: MOCK_DATA.csv
+# with open("MOCK_DATA.csv", "rb") as file:
+#     sensitive_data = file.read()
 
 
-fuzzy_fingerprints, count_fingerprints = preprocess_sensitive_data(sensitive_data)
+# fuzzy_fingerprints, count_fingerprints = preprocess_sensitive_data(sensitive_data)
 
-traffic_data = "My name is Le Thanh Dat".encode('utf-8')
-T_hat = detect_traffic(traffic_data, fuzzy_fingerprints, count_fingerprints, threshold=0.6)
+
+# traffic_data = "1,Lorne,McGovern,lmcgovern0@techcrunch.com,Female,218.116.160.852,Devon,Mabe,dmabe1@photobucket.com,Female,9.35.94.22".encode('utf-8')
+# T_hat = detect_traffic(traffic_data, fuzzy_fingerprints, count_fingerprints, threshold=0.6)
 

@@ -1,8 +1,8 @@
 import socket
 import threading
+from pybloom_live import BloomFilter
 import lib.config as config
 import lib.detect as detect
-from pybloom_live import BloomFilter
 
 fuzzy_fingerprints = []
 bf = BloomFilter(capacity=10000, error_rate=0.001)
@@ -18,7 +18,7 @@ def handle_fingerprint_connection(data, conn):
             fingerprints = [int(fp) for fp in fingerprints if fp.strip() != ""]
             fuzzy_fingerprints.extend(fingerprints)
             conn.sendall(b"Fingerprints received")
-            print(f"Fingerprints received: {fuzzy_fingerprints}")
+            # print(f"Fingerprints received: {fuzzy_fingerprints}")
             for fingerprint in fuzzy_fingerprints:
                 bf.add(fingerprint)
         else:
@@ -34,17 +34,18 @@ def forward_to_vm3(data, address):
         sock.connect(address)
         sock.sendall(data.encode('utf-8'))
     except Exception as e:
-        print(f"Error forwarding data to VM3: {e}")
+        print(f"Error forwarding data to server: {e}")
     finally:
         sock.close()
 
 
 def handle_connection(client_socket):
     try:
-        initial_data = client_socket.recv(4096).decode('utf-8')
+        initial_data = client_socket.recv(110000).decode('utf-8')
         if initial_data.startswith("type=fingerprint"):
-            print(len(initial_data))
-            print(initial_data)
+            # print(len(initial_data))
+            # print(initial_data)
+            print("Received fingerprints")
             handle_fingerprint_connection(initial_data, client_socket)
         else:
 
@@ -57,11 +58,13 @@ def handle_connection(client_socket):
             vm3_address = (vm3_host, vm3_port)
 
             data = parts[1].split("=")[1].strip()
+
+            # print(vm3_address)
             
             is_sensitive = False if len(fuzzy_fingerprints) == 0 else detect.detect_traffic(data.encode('utf-8'), bf, len(fuzzy_fingerprints), threshold=0.6)
             
             if is_sensitive:
-                client_socket.sendall(data.encode('utf-8'))
+                client_socket.sendall("Data is sensitive".encode('utf-8'))
             else:
                 forward_to_vm3(data, vm3_address)
                 client_socket.sendall(b"Data sent to server")

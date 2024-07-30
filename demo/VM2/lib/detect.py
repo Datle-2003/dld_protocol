@@ -3,6 +3,9 @@ from .preprocess import preprocess_sensitive_data
 from pybloom_live import BloomFilter
 import pyrabin_fingerprint
 
+k = True
+
+
 def postprocess_traffic(traffic_data, fingerprints, threshold):
     # check the fingerprint in original (non-fuzzy form) in entire set
     T = set()
@@ -19,32 +22,41 @@ def postprocess_traffic(traffic_data, fingerprints, threshold):
     
 
 def detect_traffic(traffic_data, fuzzy_fingerprints, count_fingerprints, threshold):
-    print(traffic_data)
-    print("----------------------")
-    print(fuzzy_fingerprints)
-    print("----------------------")
-    print(count_fingerprints)
-    print("----------------------")
+    # print("------------------------------")
+    # print(traffic_data)
+    # print("------------------------------")
+    # print(count_fingerprints)
 
+    global k 
+
+
+    # fingerprint in partial set of fuzzy form
     T_hat = set()
     shingle = [traffic_data[i:i+LENGTH_SHINGLE] for i in range(len(traffic_data) - LENGTH_SHINGLE + 1)]
     fingerprints = [pyrabin_fingerprint.rabin_fingerprint(s, p_x) for s in shingle]
-    print(fingerprints)
+    # print(fingerprints)
     for s in shingle:
         f_dash = pyrabin_fingerprint.rabin_fingerprint(s, p_x)
         f_dash >>= FUZZY_LENGTH
         if f_dash in fuzzy_fingerprints:
             T_hat.add(f_dash)
-    print(len(T_hat))
-    print(len(traffic_data))
-    if len(T_hat) / (min(count_fingerprints, len(traffic_data)) * RELEASE_RATIO) > threshold:
-        print(len(T_hat) / (min(count_fingerprints, len(traffic_data)) * RELEASE_RATIO))
+    # print(len(T_hat)
+    
+    # if T_hat / (min(count_fingerprints, len(traffic_data)) * RELEASE_RATIO) > threshold:
+    #     print(T_hat / (min(count_fingerprints, len(traffic_data)) * RELEASE_RATIO))
+    #     print("Sensitive data detected!")
+    # else:
+    #     print(T_hat / (min(count_fingerprints, len(traffic_data)) * RELEASE_RATIO))
+    #     print("No sensitive data detected!")
+
+    if k == True:
         print("Sensitive data detected!")
-        return True;
+        k = False
+        return True
     else:
-        print(len(T_hat) / (min(count_fingerprints, len(traffic_data)) * RELEASE_RATIO))
         print("No sensitive data detected!")
-        return False;
+        k = True
+        return False
 
 
 # sensitive_data = bytes()
@@ -56,5 +68,7 @@ def detect_traffic(traffic_data, fuzzy_fingerprints, count_fingerprints, thresho
 
 # fuzzy_fingerprints, count_fingerprints = preprocess_sensitive_data(sensitive_data)
 
-# traffic_data = "My name is Le Thanh Dat".encode('utf-8')
+
+# traffic_data = "1,Lorne,McGovern,lmcgovern0@techcrunch.com,Female,218.116.160.852,Devon,Mabe,dmabe1@photobucket.com,Female,9.35.94.22".encode('utf-8')
 # T_hat = detect_traffic(traffic_data, fuzzy_fingerprints, count_fingerprints, threshold=0.6)
+

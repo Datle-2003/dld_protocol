@@ -5,13 +5,6 @@ import lib.preprocess as preprocess
 import lib.detect as detect
 from pybloom_live import BloomFilter
 
-def read_data(file_name):
-    sensitive_data = ""
-    with open(file_name, "rb") as file:
-        sensitive_data = file.read()
-    return sensitive_data
-
-
 def send_data(data, vm2_address, vm3_address):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -35,6 +28,12 @@ def send_data(data, vm2_address, vm3_address):
         sock.close()
 
 if __name__ == "__main__":
-    data_file = sys.argv[1]
-    data = read_data(data_file)
-    send_data(data, config.vm2_address, config.vm3_address)
+    # get the first arg as the file name
+    traffic_data = ""
+    filename = sys.argv[1]
+    with open(filename, "rb") as file:
+        traffic_data = file.read()
+    
+    print("Send traffic data: ", traffic_data, " to DLD provider")
+
+    send_data(traffic_data, config.vm2_address, config.vm3_address)

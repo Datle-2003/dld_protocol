@@ -21,11 +21,7 @@ def preprocess_sensitive_data(data):
     # 3. Generate fuzzy fingerprints
     fuzzy_fingerprints = generate_fuzzy_fingerprints(S)
     print(fuzzy_fingerprints)
-    bf = BloomFilter(capacity=10000, error_rate=0.001)
-    for fingerprint in fuzzy_fingerprints:
-        bf.add(fingerprint)
-    # 4. Add to a bloom filter 
-    return bf, len(fuzzy_fingerprints)
+    return fuzzy_fingerprints, len(fuzzy_fingerprints)
 
 def generate_original_fingerprints(data):
     shingle = [data[i:i+LENGTH_SHINGLE] for i in range(len(data) - LENGTH_SHINGLE + 1)]
@@ -34,3 +30,5 @@ def generate_original_fingerprints(data):
     for fingerprint in S:
         bf.add(fingerprint)
     return bf
+
+
